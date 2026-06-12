@@ -152,35 +152,42 @@ export default function Home() {
   const donePct = total === 0 ? 0 : Math.round((counts.done / total) * 100);
 
   return (
-    <main className="min-h-screen bg-[#f6f7f9] text-[#16181d]">
+    <main className="min-h-screen bg-[#f6f7f9] text-[#16181d] dark:bg-[#0d0f13] dark:text-[#e6e8ec]">
       <div className="mx-auto max-w-6xl px-5 py-8">
         {/* Header */}
         <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Task board</h1>
-            <p className="mt-0.5 text-sm text-[#6b7280]">
+            <p className="mt-0.5 text-sm text-[#6b7280] dark:text-[#9aa0aa]">
               Signed in as {user.email}
             </p>
           </div>
-          <div className="flex items-center gap-5">
-            <Stat label="To do" value={counts.todo} dot={STATUS_DOT.todo} />
-            <Stat label="In progress" value={counts.doing} dot={STATUS_DOT.doing} />
-            <Stat label="Done" value={counts.done} dot={STATUS_DOT.done} />
-            {overdue > 0 && (
-              <Stat label="Overdue" value={overdue} dot="bg-rose-500" alert />
-            )}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
+              <Stat label="To do" value={counts.todo} dot={STATUS_DOT.todo} />
+              <Stat
+                label="In progress"
+                value={counts.doing}
+                dot={STATUS_DOT.doing}
+              />
+              <Stat label="Done" value={counts.done} dot={STATUS_DOT.done} />
+              {overdue > 0 && (
+                <Stat label="Overdue" value={overdue} dot="bg-rose-500" alert />
+              )}
+            </div>
+            <ThemeToggle />
           </div>
         </header>
 
         {/* Progress */}
         <div className="mb-6 flex items-center gap-3">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#e6e8ec]">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#e6e8ec] dark:bg-[#2a2e36]">
             <div
               className="h-full rounded-full bg-emerald-500 transition-all duration-500"
               style={{ width: `${donePct}%` }}
             />
           </div>
-          <span className="w-10 text-right text-xs font-medium tabular-nums text-[#6b7280]">
+          <span className="w-10 text-right text-xs font-medium tabular-nums text-[#6b7280] dark:text-[#9aa0aa]">
             {donePct}%
           </span>
         </div>
@@ -200,15 +207,13 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setShowProjects((v) => !v)}
-            className="ml-1 rounded-full border border-dashed border-[#cdd1d8] px-3 py-1 text-sm text-[#6b7280] transition hover:border-[#5b5bd6] hover:text-[#5b5bd6]"
+            className="ml-1 rounded-full border border-dashed border-[#cdd1d8] px-3 py-1 text-sm text-[#6b7280] transition hover:border-[#5b5bd6] hover:text-[#5b5bd6] dark:border-[#3a3f48] dark:text-[#9aa0aa]"
           >
             {showProjects ? "Done" : "+ Project"}
           </button>
         </div>
 
-        {showProjects && (
-          <ProjectManager projects={projects} />
-        )}
+        {showProjects && <ProjectManager projects={projects} />}
 
         {/* New task composer */}
         <TaskComposer projects={projects} activeProjectId={activeProjectId} />
@@ -220,18 +225,18 @@ export default function Home() {
             return (
               <div
                 key={status}
-                className="rounded-xl border border-[#e6e8ec] bg-white/60 p-3"
+                className="rounded-xl border border-[#e6e8ec] bg-white/60 p-3 dark:border-[#2a2e36] dark:bg-white/[0.03]"
               >
                 <div className="mb-3 flex items-center gap-2 px-1">
                   <span className={`h-2 w-2 rounded-full ${STATUS_DOT[status]}`} />
                   <h2 className="text-sm font-semibold">{STATUS_LABEL[status]}</h2>
-                  <span className="text-xs tabular-nums text-[#9ca3af]">
+                  <span className="text-xs tabular-nums text-[#9ca3af] dark:text-[#6b7280]">
                     {column.length}
                   </span>
                 </div>
                 <div className="flex flex-col gap-2">
                   {column.length === 0 && (
-                    <p className="px-1 py-6 text-center text-xs text-[#aab0ba]">
+                    <p className="px-1 py-6 text-center text-xs text-[#aab0ba] dark:text-[#5b616b]">
                       Nothing here yet.
                     </p>
                   )}
@@ -266,6 +271,54 @@ export default function Home() {
 
 // --- Components -------------------------------------------------------------
 
+function ThemeToggle() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    setDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  function toggle() {
+    const next = !document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.setItem("theme", next ? "dark" : "light");
+    } catch {}
+    setDark(next);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label="Toggle dark mode"
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
+      className="rounded-lg border border-[#e6e8ec] bg-white p-2 text-[#6b7280] transition hover:text-[#16181d] dark:border-[#2a2e36] dark:bg-[#191c22] dark:text-[#9aa0aa] dark:hover:text-[#e6e8ec]"
+    >
+      {dark ? (
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.5" />
+          <path
+            d="M10 1.5v2M10 16.5v2M18.5 10h-2M3.5 10h-2M15.95 4.05l-1.4 1.4M5.45 14.55l-1.4 1.4M15.95 15.95l-1.4-1.4M5.45 5.45l-1.4-1.4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <path
+            d="M16.5 11.5A6.5 6.5 0 0 1 8.5 3.5a6.5 6.5 0 1 0 8 8Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function Stat({
   label,
   value,
@@ -281,10 +334,12 @@ function Stat({
     <div className="flex items-center gap-1.5">
       <span className={`h-2 w-2 rounded-full ${dot}`} />
       <span className="text-sm tabular-nums">
-        <span className={`font-semibold ${alert ? "text-rose-600" : ""}`}>
+        <span
+          className={`font-semibold ${alert ? "text-rose-600 dark:text-rose-400" : ""}`}
+        >
           {value}
         </span>{" "}
-        <span className="text-[#6b7280]">{label}</span>
+        <span className="text-[#6b7280] dark:text-[#9aa0aa]">{label}</span>
       </span>
     </div>
   );
@@ -306,8 +361,8 @@ function ProjectChip({
       to={to}
       className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition ${
         active
-          ? "border-[#16181d] bg-[#16181d] text-white"
-          : "border-[#e6e8ec] bg-white text-[#374151] hover:border-[#cdd1d8]"
+          ? "border-[#16181d] bg-[#16181d] text-white dark:border-white dark:bg-white dark:text-[#16181d]"
+          : "border-[#e6e8ec] bg-white text-[#374151] hover:border-[#cdd1d8] dark:border-[#2a2e36] dark:bg-[#191c22] dark:text-[#c8ccd2] dark:hover:border-[#3a3f48]"
       }`}
     >
       {color && (
@@ -333,7 +388,7 @@ function ProjectManager({ projects }: { projects: SerializedProject[] }) {
   }, [fetcher.state, fetcher.data]);
 
   return (
-    <div className="mb-5 rounded-xl border border-[#e6e8ec] bg-white p-4">
+    <div className="mb-5 rounded-xl border border-[#e6e8ec] bg-white p-4 dark:border-[#2a2e36] dark:bg-[#191c22]">
       <h3 className="mb-3 text-sm font-semibold">Projects</h3>
 
       {projects.length > 0 && (
@@ -350,7 +405,7 @@ function ProjectManager({ projects }: { projects: SerializedProject[] }) {
                 <input type="hidden" name="id" value={p.id} />
                 <button
                   type="submit"
-                  className="rounded px-2 py-0.5 text-xs text-[#9ca3af] transition hover:bg-rose-50 hover:text-rose-600"
+                  className="rounded px-2 py-0.5 text-xs text-[#9ca3af] transition hover:bg-rose-50 hover:text-rose-600 dark:text-[#6b7280] dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
                 >
                   Remove
                 </button>
@@ -371,7 +426,7 @@ function ProjectManager({ projects }: { projects: SerializedProject[] }) {
           name="name"
           required
           placeholder="New project name"
-          className="min-w-[10rem] flex-1 rounded-lg border border-[#e6e8ec] px-3 py-1.5 text-sm outline-none focus:border-[#5b5bd6]"
+          className="min-w-[10rem] flex-1 rounded-lg border border-[#e6e8ec] px-3 py-1.5 text-sm outline-none focus:border-[#5b5bd6] dark:border-[#2a2e36] dark:bg-[#0d0f13] dark:text-[#e6e8ec]"
         />
         <div className="flex items-center gap-1">
           {PROJECT_COLORS.map((c) => (
@@ -381,7 +436,9 @@ function ProjectManager({ projects }: { projects: SerializedProject[] }) {
               onClick={() => setColor(c)}
               aria-label={`Use color ${c}`}
               className={`h-5 w-5 rounded-full transition ${
-                color === c ? "ring-2 ring-[#16181d] ring-offset-1" : ""
+                color === c
+                  ? "ring-2 ring-[#16181d] ring-offset-1 dark:ring-white dark:ring-offset-[#191c22]"
+                  : ""
               }`}
               style={{ backgroundColor: c }}
             />
@@ -389,7 +446,7 @@ function ProjectManager({ projects }: { projects: SerializedProject[] }) {
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-[#16181d] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#2b2f37]"
+          className="rounded-lg bg-[#16181d] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#2b2f37] dark:bg-white dark:text-[#16181d] dark:hover:bg-[#e6e8ec]"
         >
           Add project
         </button>
@@ -418,19 +475,19 @@ function TaskComposer({
     <fetcher.Form
       ref={formRef}
       method="post"
-      className="mb-6 flex flex-wrap items-center gap-2 rounded-xl border border-[#e6e8ec] bg-white p-3"
+      className="mb-6 flex flex-wrap items-center gap-2 rounded-xl border border-[#e6e8ec] bg-white p-3 dark:border-[#2a2e36] dark:bg-[#191c22]"
     >
       <input type="hidden" name="intent" value="create-task" />
       <input
         name="title"
         required
         placeholder="Add a task…"
-        className="min-w-[12rem] flex-1 rounded-lg border border-transparent bg-[#f6f7f9] px-3 py-2 text-sm outline-none focus:border-[#5b5bd6] focus:bg-white"
+        className="min-w-[12rem] flex-1 rounded-lg border border-transparent bg-[#f6f7f9] px-3 py-2 text-sm outline-none focus:border-[#5b5bd6] focus:bg-white dark:bg-[#0d0f13] dark:text-[#e6e8ec] dark:focus:bg-[#15181d]"
       />
       <select
         name="priority"
         defaultValue="medium"
-        className="rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm outline-none focus:border-[#5b5bd6]"
+        className="rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm outline-none focus:border-[#5b5bd6] dark:border-[#2a2e36] dark:bg-[#0d0f13] dark:text-[#e6e8ec]"
       >
         {PRIORITIES.map((p) => (
           <option key={p} value={p}>
@@ -441,12 +498,12 @@ function TaskComposer({
       <input
         type="date"
         name="dueDate"
-        className="rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm text-[#374151] outline-none focus:border-[#5b5bd6]"
+        className="rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm text-[#374151] outline-none focus:border-[#5b5bd6] dark:border-[#2a2e36] dark:bg-[#0d0f13] dark:text-[#c8ccd2]"
       />
       <select
         name="projectId"
         defaultValue={activeProjectId ?? ""}
-        className="rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm outline-none focus:border-[#5b5bd6]"
+        className="rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm outline-none focus:border-[#5b5bd6] dark:border-[#2a2e36] dark:bg-[#0d0f13] dark:text-[#e6e8ec]"
       >
         <option value="">No project</option>
         {projects.map((p) => (
@@ -488,8 +545,8 @@ function TaskCard({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-lg border border-[#e6e8ec] bg-white p-3 shadow-sm transition ${
-        busy ? "opacity-40" : "hover:shadow-md"
+      className={`group relative overflow-hidden rounded-lg border border-[#e6e8ec] bg-white p-3 shadow-sm transition dark:border-[#2a2e36] dark:bg-[#191c22] dark:shadow-none ${
+        busy ? "opacity-40" : "hover:shadow-md dark:hover:border-[#3a3f48]"
       }`}
     >
       <span
@@ -502,7 +559,9 @@ function TaskCard({
             type="button"
             onClick={onEdit}
             className={`text-left text-sm font-medium leading-snug ${
-              task.status === "done" ? "text-[#9ca3af] line-through" : ""
+              task.status === "done"
+                ? "text-[#9ca3af] line-through dark:text-[#6b7280]"
+                : ""
             }`}
           >
             {task.title}
@@ -513,7 +572,7 @@ function TaskCard({
             <button
               type="submit"
               aria-label="Delete task"
-              className="shrink-0 rounded p-0.5 text-[#c2c7d0] opacity-0 transition hover:text-rose-500 group-hover:opacity-100"
+              className="shrink-0 rounded p-0.5 text-[#c2c7d0] opacity-0 transition hover:text-rose-500 group-hover:opacity-100 dark:text-[#4b515b]"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path
@@ -532,7 +591,9 @@ function TaskCard({
             {task.dueDate && (
               <span
                 className={`flex items-center gap-1 ${
-                  overdue ? "font-medium text-rose-600" : "text-[#6b7280]"
+                  overdue
+                    ? "font-medium text-rose-600 dark:text-rose-400"
+                    : "text-[#6b7280] dark:text-[#9aa0aa]"
                 }`}
               >
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
@@ -550,7 +611,7 @@ function TaskCard({
               </span>
             )}
             {project && (
-              <span className="flex items-center gap-1 text-[#6b7280]">
+              <span className="flex items-center gap-1 text-[#6b7280] dark:text-[#9aa0aa]">
                 <span
                   className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: project.color }}
@@ -600,7 +661,7 @@ function MoveButton({
       <input type="hidden" name="status" value={status} />
       <button
         type="submit"
-        className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#6b7280] transition hover:bg-[#f1f2f4] hover:text-[#16181d]"
+        className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#6b7280] transition hover:bg-[#f1f2f4] hover:text-[#16181d] dark:text-[#9aa0aa] dark:hover:bg-white/5 dark:hover:text-[#e6e8ec]"
       >
         {dir === "left" && <span aria-hidden>←</span>}
         {children}
@@ -631,13 +692,16 @@ function EditDialog({
     if (deleteFetcher.state === "idle" && deleteFetcher.data) onClose();
   }, [deleteFetcher.state, deleteFetcher.data, onClose]);
 
+  const fieldClass =
+    "mt-1 w-full rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6] dark:border-[#2a2e36] dark:bg-[#0d0f13] dark:text-[#e6e8ec]";
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 dark:bg-black/60"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl"
+        className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl dark:bg-[#1a1d23] dark:shadow-black/40"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
@@ -646,7 +710,7 @@ function EditDialog({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded p-1 text-[#9ca3af] transition hover:bg-[#f1f2f4] hover:text-[#16181d]"
+            className="rounded p-1 text-[#9ca3af] transition hover:bg-[#f1f2f4] hover:text-[#16181d] dark:text-[#6b7280] dark:hover:bg-white/5 dark:hover:text-[#e6e8ec]"
           >
             <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
               <path
@@ -663,35 +727,31 @@ function EditDialog({
           <input type="hidden" name="intent" value="update-task" />
           <input type="hidden" name="id" value={task.id} />
 
-          <label className="block text-xs font-medium text-[#6b7280]">
+          <label className="block text-xs font-medium text-[#6b7280] dark:text-[#9aa0aa]">
             Title
             <input
               name="title"
               required
               defaultValue={task.title}
-              className="mt-1 w-full rounded-lg border border-[#e6e8ec] px-3 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6]"
+              className="mt-1 w-full rounded-lg border border-[#e6e8ec] px-3 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6] dark:border-[#2a2e36] dark:bg-[#0d0f13] dark:text-[#e6e8ec]"
             />
           </label>
 
-          <label className="block text-xs font-medium text-[#6b7280]">
+          <label className="block text-xs font-medium text-[#6b7280] dark:text-[#9aa0aa]">
             Notes
             <textarea
               name="notes"
               rows={3}
               defaultValue={task.notes ?? ""}
               placeholder="Add details…"
-              className="mt-1 w-full resize-none rounded-lg border border-[#e6e8ec] px-3 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6]"
+              className="mt-1 w-full resize-none rounded-lg border border-[#e6e8ec] px-3 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6] dark:border-[#2a2e36] dark:bg-[#0d0f13] dark:text-[#e6e8ec]"
             />
           </label>
 
           <div className="grid grid-cols-2 gap-3">
-            <label className="block text-xs font-medium text-[#6b7280]">
+            <label className="block text-xs font-medium text-[#6b7280] dark:text-[#9aa0aa]">
               Status
-              <select
-                name="status"
-                defaultValue={task.status}
-                className="mt-1 w-full rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6]"
-              >
+              <select name="status" defaultValue={task.status} className={fieldClass}>
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>
                     {STATUS_LABEL[s]}
@@ -699,12 +759,12 @@ function EditDialog({
                 ))}
               </select>
             </label>
-            <label className="block text-xs font-medium text-[#6b7280]">
+            <label className="block text-xs font-medium text-[#6b7280] dark:text-[#9aa0aa]">
               Priority
               <select
                 name="priority"
                 defaultValue={task.priority}
-                className="mt-1 w-full rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6]"
+                className={fieldClass}
               >
                 {PRIORITIES.map((p) => (
                   <option key={p} value={p}>
@@ -713,21 +773,21 @@ function EditDialog({
                 ))}
               </select>
             </label>
-            <label className="block text-xs font-medium text-[#6b7280]">
+            <label className="block text-xs font-medium text-[#6b7280] dark:text-[#9aa0aa]">
               Due date
               <input
                 type="date"
                 name="dueDate"
                 defaultValue={task.dueDate ?? ""}
-                className="mt-1 w-full rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6]"
+                className={fieldClass}
               />
             </label>
-            <label className="block text-xs font-medium text-[#6b7280]">
+            <label className="block text-xs font-medium text-[#6b7280] dark:text-[#9aa0aa]">
               Project
               <select
                 name="projectId"
                 defaultValue={task.projectId ?? ""}
-                className="mt-1 w-full rounded-lg border border-[#e6e8ec] bg-white px-2 py-2 text-sm text-[#16181d] outline-none focus:border-[#5b5bd6]"
+                className={fieldClass}
               >
                 <option value="">No project</option>
                 {projects.map((p) => (
@@ -748,7 +808,7 @@ function EditDialog({
                   { method: "post" },
                 )
               }
-              className="rounded-lg px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
             >
               Delete
             </button>
@@ -756,7 +816,7 @@ function EditDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#f1f2f4]"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#f1f2f4] dark:text-[#9aa0aa] dark:hover:bg-white/5"
               >
                 Cancel
               </button>

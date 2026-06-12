@@ -1,15 +1,23 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: the `dark` class on <html> drives all `dark:` variants
+   (set before paint by the inline script in root.tsx, toggled by ThemeToggle). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark; /* native date pickers, selects, scrollbars follow the theme */
+}
+
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  @apply bg-[#f6f7f9] dark:bg-[#0d0f13];
 }
