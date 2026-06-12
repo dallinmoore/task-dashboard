@@ -1,0 +1,14 @@
+.react-router
+build
+node_modules
+README.md
+.git
+.env
+*.local
+
+# Never bake a local SQLite database into the image — prod data lives on the
+# Coolify volume, created fresh by `prisma migrate deploy` on first boot.
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+prisma/*.db-*

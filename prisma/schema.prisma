@@ -1,0 +1,37 @@
+// Prisma schema — this is the heart of your data model.
+//
+// To change your data: edit the models below, then run `npm run db:migrate`
+// (Claude can do this for you). That updates the database and regenerates the
+// type-safe client your code uses.
+//
+// Engine: SQLite. The same file-based engine is used locally and in production
+// (in prod the file lives on a Coolify persistent volume), so there's no
+// "works locally, breaks in prod" surprises.
+//
+// SQLite note: it has no native enum or list/array column types. For a fixed
+// set of values (e.g. a status), use a plain `String`.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  // Resolved from the DATABASE_URL env var. Locally: a file (file:./dev.db).
+  // In production: a file on the mounted volume (e.g. file:/data/app.db).
+  url      = env("DATABASE_URL")
+}
+
+/// A starter model: a note belonging to the signed-in user.
+/// It's tied to the authenticated identity via `userEmail` — the same
+/// `user.email` you get from `useUser()` / `getUser(request)`.
+/// Use this as the pattern to extend: copy it, rename it, add fields.
+model Note {
+  id        String   @id @default(cuid())
+  body      String
+  userEmail String // owner — matches the authenticated user's email
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userEmail])
+}
